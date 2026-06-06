@@ -1,0 +1,1574 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PRESTIGE MOTORS | 极致豪华汽车</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@200;300;400;500;700&family=Cinzel:wght@400;500;600;700;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --gold: #c6a55c;
+    --gold-light: #d4b76e;
+    --gold-dark: #a88a3d;
+    --black: #0a0a0a;
+    --black-soft: #111;
+    --white: #f5f5f5;
+    --gray: #888;
+    --gray-dark: #1a1a1a;
+    --transition: 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Cormorant Garamond', 'Noto Sans SC', serif;
+    background: var(--black);
+    color: var(--white);
+    overflow-x: hidden;
+    line-height: 1.6;
+  }
+
+  /* ========== CURSOR ========== */
+  .cursor {
+    width: 20px; height: 20px;
+    border: 2px solid var(--gold);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.15s ease, width 0.3s, height 0.3s;
+    transform: translate(-50%, -50%);
+    mix-blend-mode: difference;
+  }
+  .cursor-dot {
+    width: 6px; height: 6px;
+    background: var(--gold);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+  }
+  .cursor.hover { width: 50px; height: 50px; background: rgba(198,165,92,0.1); }
+
+  /* ========== PRELOADER ========== */
+  .preloader {
+    position: fixed;
+    inset: 0;
+    background: var(--black);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.6s, visibility 0.6s;
+  }
+  .preloader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+  .preloader-logo {
+    font-family: 'Cinzel', serif;
+    font-size: 2.5rem;
+    color: var(--gold);
+    letter-spacing: 0.3em;
+    animation: breathe 1.5s ease-in-out infinite;
+  }
+  @keyframes breathe {
+    0%, 100% { opacity: 0.3; transform: scale(0.95); }
+    50% { opacity: 1; transform: scale(1.05); }
+  }
+
+  /* ========== NAVIGATION ========== */
+  .navbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 1000;
+    padding: 1.5rem 4rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all var(--transition);
+  }
+  .navbar.scrolled {
+    background: rgba(10,10,10,0.95);
+    backdrop-filter: blur(20px);
+    padding: 1rem 4rem;
+    border-bottom: 1px solid rgba(198,165,92,0.15);
+  }
+  .nav-logo {
+    font-family: 'Cinzel', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 0.25em;
+    text-decoration: none;
+  }
+  .nav-logo span { color: var(--white); font-weight: 400; }
+  .nav-links {
+    display: flex;
+    list-style: none;
+    gap: 3rem;
+  }
+  .nav-links a {
+    color: var(--white);
+    text-decoration: none;
+    font-size: 0.8rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    position: relative;
+    padding: 0.3rem 0;
+    transition: color var(--transition);
+    font-family: 'Noto Sans SC', sans-serif;
+    font-weight: 300;
+  }
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -2px; left: 0;
+    width: 0; height: 1px;
+    background: var(--gold);
+    transition: width var(--transition);
+  }
+  .nav-links a:hover { color: var(--gold); }
+  .nav-links a:hover::after { width: 100%; }
+  .nav-toggle {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+    z-index: 1001;
+  }
+  .nav-toggle span {
+    width: 28px; height: 1.5px;
+    background: var(--white);
+    transition: all 0.3s;
+  }
+
+  /* ========== HERO ========== */
+  .hero {
+    position: relative;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+  .hero-slide {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    transition: opacity 1.5s ease-in-out;
+  }
+  .hero-slide.active { opacity: 1; animation: zoomOut 10s ease-out; }
+  .hero-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background:
+      linear-gradient(180deg, rgba(10,10,10,0.3) 0%, rgba(10,10,10,0.5) 50%, rgba(10,10,10,0.95) 100%),
+      linear-gradient(90deg, rgba(0,0,0,0.7) 0%, transparent 40%, transparent 60%, rgba(0,0,0,0.7) 100%);
+  }
+  .hero-slide-dots {
+    position: absolute;
+    bottom: 8rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    display: flex;
+    gap: 0.8rem;
+  }
+  .hero-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.3);
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+  .hero-dot.active { background: var(--gold); transform: scale(1.3); }
+  @keyframes zoomOut {
+    from { transform: scale(1.15); }
+    to { transform: scale(1); }
+  }
+  .hero-particles {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+  .particle {
+    position: absolute;
+    width: 2px; height: 2px;
+    background: var(--gold);
+    border-radius: 50%;
+    animation: float 8s infinite;
+    opacity: 0;
+  }
+  @keyframes float {
+    0% { opacity: 0; transform: translateY(100vh) scale(0); }
+    10% { opacity: 1; }
+    90% { opacity: 0.5; }
+    100% { opacity: 0; transform: translateY(-10vh) scale(1.5); }
+  }
+  .hero-content {
+    position: relative;
+    z-index: 10;
+    text-align: center;
+    padding: 0 2rem;
+  }
+  .hero-subtitle {
+    font-family: 'Noto Sans SC', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.5em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    font-weight: 300;
+    animation: fadeUp 1s ease-out 0.3s both;
+  }
+  .hero-title {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(3rem, 8vw, 7rem);
+    font-weight: 900;
+    color: var(--white);
+    letter-spacing: 0.1em;
+    line-height: 1.1;
+    margin-bottom: 1rem;
+    animation: fadeUp 1s ease-out 0.5s both;
+  }
+  .hero-title span { color: var(--gold); }
+  .hero-desc {
+    font-size: clamp(1rem, 2.5vw, 1.3rem);
+    color: var(--gray);
+    font-weight: 300;
+    max-width: 600px;
+    margin: 0 auto 3rem;
+    animation: fadeUp 1s ease-out 0.7s both;
+  }
+  .hero-buttons {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    animation: fadeUp 1s ease-out 0.9s both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ========== BUTTONS ========== */
+  .btn {
+    display: inline-block;
+    padding: 1rem 2.5rem;
+    font-family: 'Noto Sans SC', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all var(--transition);
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-primary {
+    background: var(--gold);
+    color: var(--black);
+    font-weight: 500;
+  }
+  .btn-primary:hover {
+    background: var(--gold-light);
+    transform: translateY(-2px);
+    box-shadow: 0 20px 40px rgba(198,165,92,0.3);
+  }
+  .btn-outline {
+    background: transparent;
+    color: var(--white);
+    border: 1px solid rgba(255,255,255,0.3);
+  }
+  .btn-outline:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+    transform: translateY(-2px);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--gold);
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--gold);
+    letter-spacing: 0.15em;
+  }
+  .btn-ghost:hover { color: var(--white); border-color: var(--white); }
+
+  /* ========== SCROLL INDICATOR ========== */
+  .scroll-indicator {
+    position: absolute;
+    bottom: 3rem;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    animation: fadeUp 1s ease-out 1.3s both;
+    pointer-events: none;
+  }
+  .scroll-indicator span {
+    font-size: 0.6rem;
+    letter-spacing: 0.3em;
+    color: var(--gray);
+    text-transform: uppercase;
+    font-family: 'Noto Sans SC', sans-serif;
+  }
+  .scroll-line {
+    width: 1px; height: 40px;
+    background: linear-gradient(to bottom, var(--gold), transparent);
+    animation: scrollPulse 2s ease-in-out infinite;
+  }
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 0.3; transform: scaleY(1); }
+    50% { opacity: 1; transform: scaleY(1.3); }
+  }
+
+  /* ========== SECTIONS ========== */
+  section { padding: 8rem 4rem; position: relative; }
+
+  .section-header {
+    text-align: center;
+    margin-bottom: 5rem;
+  }
+  .section-label {
+    font-family: 'Noto Sans SC', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.4em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    font-weight: 400;
+  }
+  .section-title {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    margin-bottom: 1rem;
+  }
+  .section-line {
+    width: 60px; height: 2px;
+    background: var(--gold);
+    margin: 1.5rem auto;
+  }
+  .section-desc {
+    color: var(--gray);
+    font-size: 1.05rem;
+    max-width: 600px;
+    margin: 0 auto;
+    font-weight: 300;
+  }
+
+  /* ========== BRAND STRIP ========== */
+  .brand-strip {
+    background: var(--black-soft);
+    padding: 2rem 0;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    overflow: hidden;
+  }
+  .brand-track {
+    display: flex;
+    gap: 5rem;
+    animation: scrollBrands 25s linear infinite;
+    width: max-content;
+  }
+  .brand-item {
+    font-family: 'Cinzel', serif;
+    font-size: 1.2rem;
+    letter-spacing: 0.15em;
+    color: var(--gray);
+    white-space: nowrap;
+    transition: color var(--transition);
+    font-weight: 500;
+  }
+  .brand-item:hover { color: var(--gold); }
+  @keyframes scrollBrands {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* ========== INVENTORY / CARDS ========== */
+  .inventory { background: var(--black); }
+
+  .car-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    gap: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .car-card {
+    background: var(--gray-dark);
+    border-radius: 2px;
+    overflow: hidden;
+    transition: all var(--transition);
+    cursor: pointer;
+    position: relative;
+  }
+  .car-card:hover { transform: translateY(-8px); box-shadow: 0 30px 60px rgba(0,0,0,0.5); }
+  .car-card-image {
+    position: relative;
+    height: 280px;
+    overflow: hidden;
+  }
+  .car-card-image::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(10,10,10,0.6) 0%, transparent 40%);
+    pointer-events: none;
+    z-index: 1;
+  }
+  .car-card-image .img-placeholder {
+    width: 100%; height: 100%;
+    background: linear-gradient(135deg, #1a1a1a 0%, #222 50%, #111 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.6s ease;
+  }
+  .car-card:hover .img-placeholder { transform: scale(1.08); }
+  .car-card-badge {
+    position: absolute;
+    top: 1rem; right: 1rem;
+    background: var(--gold);
+    color: var(--black);
+    padding: 0.3rem 0.8rem;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    font-family: 'Noto Sans SC', sans-serif;
+    font-weight: 500;
+  }
+  .car-card-body { padding: 2rem; }
+  .car-card-brand {
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+    font-family: 'Noto Sans SC', sans-serif;
+    font-weight: 400;
+  }
+  .car-card-name {
+    font-family: 'Cinzel', serif;
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 0.8rem;
+    letter-spacing: 0.05em;
+  }
+  .car-card-specs {
+    display: flex;
+    gap: 1.2rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .car-spec {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.75rem;
+    color: var(--gray);
+    font-family: 'Noto Sans SC', sans-serif;
+    font-weight: 300;
+  }
+  .car-spec-icon { color: var(--gold); font-size: 0.9rem; }
+  .car-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    padding-top: 1.2rem;
+  }
+  .car-price {
+    font-family: 'Cinzel', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--gold);
+  }
+  .car-price small { font-size: 0.6rem; color: var(--gray); font-weight: 400; }
+
+  /* ========== FILTER TABS ========== */
+  .filter-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 3rem;
+    flex-wrap: wrap;
+  }
+  .filter-tab {
+    padding: 0.7rem 1.8rem;
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--gray);
+    cursor: pointer;
+    font-family: 'Noto Sans SC', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.15em;
+    transition: all var(--transition);
+    text-transform: uppercase;
+  }
+  .filter-tab:hover { border-color: var(--gold); color: var(--white); }
+  .filter-tab.active { background: var(--gold); color: var(--black); border-color: var(--gold); font-weight: 500; }
+
+  /* ========== SERVICES ========== */
+  .services { background: var(--black-soft); }
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .service-card {
+    text-align: center;
+    padding: 3rem 2rem;
+    border: 1px solid rgba(255,255,255,0.05);
+    transition: all var(--transition);
+    border-radius: 2px;
+  }
+  .service-card:hover {
+    border-color: var(--gold);
+    background: rgba(198,165,92,0.03);
+    transform: translateY(-5px);
+  }
+  .service-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+    display: block;
+  }
+  .service-title {
+    font-family: 'Cinzel', serif;
+    font-size: 1.2rem;
+    letter-spacing: 0.1em;
+    margin-bottom: 1rem;
+    font-weight: 600;
+  }
+  .service-desc {
+    font-size: 0.9rem;
+    color: var(--gray);
+    font-weight: 300;
+    line-height: 1.8;
+  }
+
+  /* ========== SHOWCASE ========== */
+  .showcase {
+    padding: 0;
+  }
+  .showcase-split {
+    display: flex;
+    min-height: 600px;
+  }
+  .showcase-image {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    min-height: 400px;
+    background: var(--black);
+  }
+  .showcase-slide {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    transition: opacity 1.2s ease-in-out;
+  }
+  .showcase-slide.active { opacity: 1; }
+  .showcase-slide-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(10,10,10,0.6) 0%, rgba(10,10,10,0.2) 100%);
+    z-index: 1;
+  }
+  .showcase-dots {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    display: flex;
+    gap: 0.6rem;
+  }
+  .showcase-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.3);
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+  .showcase-dot.active { background: var(--gold); transform: scale(1.3); }
+  .showcase-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 5rem;
+    background: var(--black-soft);
+  }
+  .showcase-label {
+    font-family: 'Noto Sans SC', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.4em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+  .showcase-title {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.8rem, 3vw, 2.8rem);
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    letter-spacing: 0.05em;
+  }
+  .showcase-text {
+    color: var(--gray);
+    font-size: 1rem;
+    line-height: 2;
+    margin-bottom: 2.5rem;
+    font-weight: 300;
+  }
+  .showcase-stats {
+    display: flex;
+    gap: 3rem;
+  }
+  .stat-value {
+    font-family: 'Cinzel', serif;
+    font-size: 2.2rem;
+    color: var(--gold);
+    font-weight: 700;
+  }
+  .stat-label {
+    font-size: 0.7rem;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    font-family: 'Noto Sans SC', sans-serif;
+    margin-top: 0.3rem;
+  }
+
+  /* ========== CONTACT ========== */
+  .contact { background: var(--black); }
+  .contact-wrapper {
+    max-width: 900px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+  }
+  .contact-info h3 {
+    font-family: 'Cinzel', serif;
+    font-size: 1.6rem;
+    margin-bottom: 2rem;
+    letter-spacing: 0.08em;
+  }
+  .contact-item {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.8rem;
+    align-items: flex-start;
+  }
+  .contact-icon {
+    width: 40px; height: 40px;
+    border: 1px solid var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 1rem;
+    color: var(--gold);
+  }
+  .contact-text h4 {
+    font-size: 0.8rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.3rem;
+    font-family: 'Noto Sans SC', sans-serif;
+    font-weight: 500;
+  }
+  .contact-text p { color: var(--gray); font-size: 0.9rem; font-weight: 300; }
+
+  .contact-form { display: flex; flex-direction: column; gap: 1.2rem; }
+  .form-group { position: relative; }
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    width: 100%;
+    padding: 1rem 0;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+    color: var(--white);
+    font-family: 'Noto Sans SC', sans-serif;
+    font-size: 0.85rem;
+    transition: border-color var(--transition);
+    outline: none;
+    resize: none;
+  }
+  .form-group input:focus,
+  .form-group textarea:focus,
+  .form-group select:focus { border-color: var(--gold); }
+  .form-group select { color: var(--gray); cursor: pointer; }
+  .form-group select option { background: var(--black); color: var(--white); }
+  .form-group input[type="datetime-local"] {
+    color-scheme: dark;
+    cursor: pointer;
+  }
+  .form-group input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.8);
+    cursor: pointer;
+  }
+  .form-group label {
+    position: absolute;
+    top: 1rem; left: 0;
+    font-size: 0.8rem;
+    color: var(--gray);
+    pointer-events: none;
+    transition: all var(--transition);
+    font-family: 'Noto Sans SC', sans-serif;
+    font-weight: 300;
+  }
+  .form-group input:focus ~ label,
+  .form-group input:valid ~ label,
+  .form-group input:not(:placeholder-shown) ~ label,
+  .form-group textarea:focus ~ label,
+  .form-group textarea:valid ~ label,
+  .form-group textarea:not(:placeholder-shown) ~ label,
+  .form-group select:focus ~ label,
+  .form-group select:valid ~ label,
+  .form-group select.has-value ~ label {
+    top: -0.6rem;
+    font-size: 0.65rem;
+    color: var(--gold);
+    letter-spacing: 0.1em;
+  }
+  .form-group textarea { min-height: 80px; }
+
+  /* ========== FOOTER ========== */
+  .footer {
+    background: var(--black-soft);
+    border-top: 1px solid rgba(255,255,255,0.05);
+    padding: 4rem;
+    text-align: center;
+  }
+  .footer-logo {
+    font-family: 'Cinzel', serif;
+    font-size: 1.4rem;
+    color: var(--gold);
+    letter-spacing: 0.25em;
+    margin-bottom: 1rem;
+    display: block;
+    text-decoration: none;
+  }
+  .footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 2.5rem;
+    list-style: none;
+    margin: 2rem 0;
+    flex-wrap: wrap;
+  }
+  .footer-links a {
+    color: var(--gray);
+    text-decoration: none;
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    transition: color var(--transition);
+    font-family: 'Noto Sans SC', sans-serif;
+    font-weight: 300;
+  }
+  .footer-links a:hover { color: var(--gold); }
+  .footer-copy {
+    color: var(--gray);
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    font-weight: 300;
+  }
+
+  /* ========== MOBILE NAV ========== */
+  .mobile-nav {
+    position: fixed;
+    inset: 0;
+    background: rgba(10,10,10,0.98);
+    backdrop-filter: blur(30px);
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.5s;
+  }
+  .mobile-nav.active { opacity: 1; visibility: visible; }
+  .mobile-nav-links {
+    list-style: none;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+  .mobile-nav-links a {
+    color: var(--white);
+    text-decoration: none;
+    font-family: 'Cinzel', serif;
+    font-size: 1.5rem;
+    letter-spacing: 0.15em;
+    transition: color var(--transition);
+  }
+  .mobile-nav-links a:hover { color: var(--gold); }
+
+  /* ========== REVEAL ANIMATION ========== */
+  .reveal {
+    opacity: 0;
+    transform: translateY(60px);
+    transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* ========== RESPONSIVE ========== */
+  @media (max-width: 1024px) {
+    .navbar { padding: 1.2rem 2rem; }
+    .navbar.scrolled { padding: 0.8rem 2rem; }
+    section { padding: 5rem 2rem; }
+    .showcase-split { flex-direction: column; }
+    .showcase-content { padding: 3rem 2rem; }
+    .contact-wrapper { grid-template-columns: 1fr; gap: 3rem; }
+    .car-grid { grid-template-columns: 1fr; max-width: 500px; }
+  }
+  @media (max-width: 768px) {
+    .nav-links { display: none; }
+    .nav-toggle { display: flex; }
+    .hero-buttons { flex-direction: column; align-items: center; }
+    .footer { padding: 3rem 1.5rem; }
+    .showcase-stats { gap: 1.5rem; flex-wrap: wrap; }
+    .stat-value { font-size: 1.6rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Preloader -->
+<div class="preloader" id="preloader">
+  <div class="preloader-logo">PRESTIGE</div>
+</div>
+
+<!-- Custom Cursor -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-dot" id="cursorDot"></div>
+
+<!-- Navigation -->
+<nav class="navbar" id="navbar">
+  <a href="#" class="nav-logo">P<span>RESTIGE</span></a>
+  <ul class="nav-links">
+    <li><a href="#home">首页</a></li>
+    <li><a href="#inventory">臻选车源</a></li>
+    <li><a href="#services">尊享服务</a></li>
+    <li><a href="#about">关于我们</a></li>
+    <li><a href="#contact">预约品鉴</a></li>
+  </ul>
+  <div class="nav-toggle" id="navToggle">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<!-- Mobile Nav -->
+<div class="mobile-nav" id="mobileNav">
+  <ul class="mobile-nav-links">
+    <li><a href="#home" onclick="closeMobileNav()">首页</a></li>
+    <li><a href="#inventory" onclick="closeMobileNav()">臻选车源</a></li>
+    <li><a href="#services" onclick="closeMobileNav()">尊享服务</a></li>
+    <li><a href="#about" onclick="closeMobileNav()">关于我们</a></li>
+    <li><a href="#contact" onclick="closeMobileNav()">预约品鉴</a></li>
+  </ul>
+</div>
+
+<!-- Hero -->
+<section class="hero" id="home">
+  <div class="hero-bg" id="heroBg">
+    <div class="hero-slide active" style="background-image: url('https://images.unsplash.com/photo-1485291571150-772bcfc10da5?w=1920&q=80');"></div>
+    <div class="hero-slide" style="background-image: url('https://images.unsplash.com/photo-1552561062-532218dd53ad?w=1920&q=80');"></div>
+    <div class="hero-slide" style="background-image: url('https://images.unsplash.com/photo-1567808291548-fc3ee04dbcf0?w=1920&q=80');"></div>
+    <div class="hero-overlay"></div>
+  </div>
+  <div class="hero-slide-dots" id="heroDots">
+    <span class="hero-dot active" data-index="0"></span>
+    <span class="hero-dot" data-index="1"></span>
+    <span class="hero-dot" data-index="2"></span>
+  </div>
+  <div class="hero-particles" id="particles"></div>
+  <div class="hero-content">
+    <p class="hero-subtitle">Since 1998 · 全球限量 · 只为极少数</p>
+    <h1 class="hero-title">驾驭<span>非凡</span></h1>
+    <p class="hero-desc">PRESTIGE MOTORS 汇聚全球顶级豪华品牌，为每一位独具品味的您，甄选独一无二的座驾杰作。</p>
+    <div class="hero-buttons">
+      <a href="#inventory" class="btn btn-primary">探索臻选车源</a>
+      <a href="#contact" class="btn btn-outline">预约私密品鉴</a>
+    </div>
+  </div>
+  <div class="scroll-indicator">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- Brand Strip -->
+<div class="brand-strip">
+  <div class="brand-track" id="brandTrack">
+    <span class="brand-item">ROLLS-ROYCE</span>
+    <span class="brand-item">BENTLEY</span>
+    <span class="brand-item">FERRARI</span>
+    <span class="brand-item">LAMBORGHINI</span>
+    <span class="brand-item">PORSCHE</span>
+    <span class="brand-item">ASTON MARTIN</span>
+    <span class="brand-item">MCLAREN</span>
+    <span class="brand-item">BUGATTI</span>
+    <span class="brand-item">MAYBACH</span>
+    <span class="brand-item">MASERATI</span>
+    <span class="brand-item">ROLLS-ROYCE</span>
+    <span class="brand-item">BENTLEY</span>
+    <span class="brand-item">FERRARI</span>
+    <span class="brand-item">LAMBORGHINI</span>
+    <span class="brand-item">PORSCHE</span>
+    <span class="brand-item">ASTON MARTIN</span>
+    <span class="brand-item">MCLAREN</span>
+    <span class="brand-item">BUGATTI</span>
+    <span class="brand-item">MAYBACH</span>
+    <span class="brand-item">MASERATI</span>
+  </div>
+</div>
+
+<!-- Inventory -->
+<section class="inventory" id="inventory">
+  <div class="section-header reveal">
+    <p class="section-label">Curated Collection</p>
+    <h2 class="section-title">臻选车源</h2>
+    <div class="section-line"></div>
+    <p class="section-desc">每一台座驾皆经我们严格甄选，确保品质、历史与稀缺性的完美统一。</p>
+  </div>
+
+  <div class="filter-tabs reveal" id="filterTabs">
+    <button class="filter-tab active" data-filter="all">全部车型</button>
+    <button class="filter-tab" data-filter="sedan">奢华轿车</button>
+    <button class="filter-tab" data-filter="suv">豪华SUV</button>
+    <button class="filter-tab" data-filter="sport">超级跑车</button>
+    <button class="filter-tab" data-filter="hyper">Hyper Car</button>
+  </div>
+
+  <div class="car-grid" id="carGrid">
+    <!-- Car cards populated by JS -->
+  </div>
+</section>
+
+<!-- Showcase / About -->
+<section class="showcase" id="about">
+  <div class="showcase-split">
+    <div class="showcase-image" id="showcaseImage">
+      <div class="showcase-slide active" style="background-image: url('https://images.unsplash.com/photo-1584099662811-6744be099a74?w=800&q=80');"></div>
+      <div class="showcase-slide" style="background-image: url('https://images.unsplash.com/photo-1502014335594-c026800f24ee?w=800&q=80');"></div>
+      <div class="showcase-slide" style="background-image: url('https://images.unsplash.com/photo-1549064233-945d7063292f?w=800&q=80');"></div>
+      <div class="showcase-slide-overlay"></div>
+      <div class="showcase-dots" id="showcaseDots">
+        <span class="showcase-dot active" data-index="0"></span>
+        <span class="showcase-dot" data-index="1"></span>
+        <span class="showcase-dot" data-index="2"></span>
+      </div>
+    </div>
+    <div class="showcase-content reveal">
+      <p class="showcase-label">Our Heritage</p>
+      <h2 class="showcase-title">传承与超越</h2>
+      <p class="showcase-text">
+        自1998年创立以来，PRESTIGE MOTORS 始终致力于为亚洲顶级客户提供无与伦比的豪华汽车体验。我们不仅仅是汽车经销商，更是品味与生活方式的策展人。<br><br>
+        我们的每一台座驾都经过超过300项严苛检测，并由资深工匠进行手工级整备，确保交付到您手中的，是完美无瑕的艺术品。
+      </p>
+      <div class="showcase-stats">
+        <div>
+          <div class="stat-value">25+</div>
+          <div class="stat-label">年行业传承</div>
+        </div>
+        <div>
+          <div class="stat-value">500+</div>
+          <div class="stat-label">全球稀有座驾</div>
+        </div>
+        <div>
+          <div class="stat-value">98%</div>
+          <div class="stat-label">客户满意度</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Services -->
+<section class="services" id="services">
+  <div class="section-header reveal">
+    <p class="section-label">Bespoke Services</p>
+    <h2 class="section-title">尊享服务</h2>
+    <div class="section-line"></div>
+    <p class="section-desc">从选车到交付，我们提供全方位的尊贵服务体验。</p>
+  </div>
+
+  <div class="services-grid">
+    <div class="service-card reveal">
+      <span class="service-icon">🔍</span>
+      <h3 class="service-title">私人寻车</h3>
+      <p class="service-desc">全球范围内为您寻找特定年份、配置及颜色的稀缺座驾，满足最挑剔的收藏家需求。</p>
+    </div>
+    <div class="service-card reveal">
+      <span class="service-icon">🛡️</span>
+      <h3 class="service-title">认证检测</h3>
+      <p class="service-desc">300+项专业检测流程，每一台车附带完整历史报告及认证证书，让您安心拥有。</p>
+    </div>
+    <div class="service-card reveal">
+      <span class="service-icon">🎨</span>
+      <h3 class="service-title">个性定制</h3>
+      <p class="service-desc">从内饰皮革到外观漆色，与顶级工坊合作，为您打造独一无二的专属座驾。</p>
+    </div>
+    <div class="service-card reveal">
+      <span class="service-icon">✈️</span>
+      <h3 class="service-title">全球交付</h3>
+      <p class="service-desc">提供门到门的全球运输服务，封闭式恒温运输，确保座驾毫发无损抵达您手中。</p>
+    </div>
+    <div class="service-card reveal">
+      <span class="service-icon">🔧</span>
+      <h3 class="service-title">尊享养护</h3>
+      <p class="service-desc">由品牌认证技师提供原厂级养护服务，使用原厂配件，保持座驾巅峰状态。</p>
+    </div>
+    <div class="service-card reveal">
+      <span class="service-icon">🏆</span>
+      <h3 class="service-title">投资顾问</h3>
+      <p class="service-desc">为您分析经典车及限量车型的投资价值，提供专业的收藏策略与市场洞察。</p>
+    </div>
+  </div>
+</section>
+
+<!-- Contact -->
+<section class="contact" id="contact">
+  <div class="section-header reveal">
+    <p class="section-label">Private Viewing</p>
+    <h2 class="section-title">预约品鉴</h2>
+    <div class="section-line"></div>
+    <p class="section-desc">私密展厅，一对一专属顾问服务，为您开启非凡座驾之旅。</p>
+  </div>
+
+  <div class="contact-wrapper reveal">
+    <div class="contact-info">
+      <h3>联系我们</h3>
+      <div class="contact-item">
+        <div class="contact-icon">📍</div>
+        <div class="contact-text">
+          <h4>私密展厅</h4>
+          <p>上海市静安区南京西路1788号<br>PRESTIGE 旗舰展厅（仅限预约）</p>
+        </div>
+      </div>
+      <div class="contact-item">
+        <div class="contact-icon">📞</div>
+        <div class="contact-text">
+          <h4>专属热线</h4>
+          <p>+86 21 6288 8888</p>
+        </div>
+      </div>
+      <div class="contact-item">
+        <div class="contact-icon">✉️</div>
+        <div class="contact-text">
+          <h4>电子邮箱</h4>
+          <p>concierge@prestige-motors.cn</p>
+        </div>
+      </div>
+      <div class="contact-item">
+        <div class="contact-icon">🕐</div>
+        <div class="contact-text">
+          <h4>营业时间</h4>
+          <p>周一至周六 10:00 - 19:00<br>周日为预约制专属时段</p>
+        </div>
+      </div>
+    </div>
+
+    <form class="contact-form" id="contactForm" onsubmit="handleSubmit(event)">
+      <div class="form-group">
+        <input type="text" id="name" placeholder=" " required>
+        <label for="name">您的姓名</label>
+      </div>
+      <div class="form-group">
+        <input type="tel" id="phone" placeholder=" " required>
+        <label for="phone">联系电话</label>
+      </div>
+      <div class="form-group">
+        <input type="email" id="email" placeholder=" " required>
+        <label for="email">电子邮箱</label>
+      </div>
+      <div class="form-group">
+        <select id="brand" placeholder=" " required>
+          <option value="" disabled selected></option>
+          <option value="Rolls-Royce">Rolls-Royce</option>
+          <option value="Bentley">Bentley</option>
+          <option value="Ferrari">Ferrari</option>
+          <option value="Lamborghini">Lamborghini</option>
+          <option value="Porsche">Porsche</option>
+          <option value="Aston Martin">Aston Martin</option>
+          <option value="McLaren">McLaren</option>
+          <option value="Bugatti">Bugatti</option>
+          <option value="Maybach">Maybach</option>
+          <option value="Other">其他品牌</option>
+        </select>
+        <label for="brand">意向品牌</label>
+      </div>
+      <div class="form-group">
+        <input type="datetime-local" id="appointment" placeholder=" " required>
+        <label for="appointment">预约时间</label>
+      </div>
+      <div class="form-group">
+        <textarea id="message" placeholder=" " required></textarea>
+        <label for="message">您的需求</label>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;margin-top:1rem;">提交预约申请</button>
+    </form>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <a href="#" class="footer-logo">PRESTIGE</a>
+  <ul class="footer-links">
+    <li><a href="#home">首页</a></li>
+    <li><a href="#inventory">臻选车源</a></li>
+    <li><a href="#services">尊享服务</a></li>
+    <li><a href="#about">关于我们</a></li>
+    <li><a href="#contact">联系我们</a></li>
+    <li><a href="#">隐私政策</a></li>
+  </ul>
+  <p class="footer-copy">&copy; 2026 PRESTIGE MOTORS. All Rights Reserved. 沪ICP备XXXXXXXX号</p>
+</footer>
+
+<script>
+// ========== PRELOADER ==========
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('preloader').classList.add('hidden');
+  }, 800);
+});
+
+// ========== CUSTOM CURSOR ==========
+const cursor = document.getElementById('cursor');
+const cursorDot = document.getElementById('cursorDot');
+
+document.addEventListener('mousemove', (e) => {
+  cursor.style.left = e.clientX + 'px';
+  cursor.style.top = e.clientY + 'px';
+  cursorDot.style.left = e.clientX + 'px';
+  cursorDot.style.top = e.clientY + 'px';
+});
+
+document.querySelectorAll('a, button, .car-card, .filter-tab, .nav-toggle').forEach(el => {
+  el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+  el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+});
+
+// ========== NAVBAR SCROLL ==========
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  if (window.scrollY > 80) {
+    navbar.classList.add('scrolled');
+  } else {
+    navbar.classList.remove('scrolled');
+  }
+});
+
+// ========== MOBILE NAV ==========
+const navToggle = document.getElementById('navToggle');
+const mobileNav = document.getElementById('mobileNav');
+
+navToggle.addEventListener('click', () => {
+  mobileNav.classList.toggle('active');
+  const spans = navToggle.querySelectorAll('span');
+  if (mobileNav.classList.contains('active')) {
+    spans[0].style.transform = 'rotate(45deg) translate(5px, 5px)';
+    spans[1].style.opacity = '0';
+    spans[2].style.transform = 'rotate(-45deg) translate(5px, -5px)';
+  } else {
+    spans[0].style.transform = 'none';
+    spans[1].style.opacity = '1';
+    spans[2].style.transform = 'none';
+  }
+});
+
+function closeMobileNav() {
+  mobileNav.classList.remove('active');
+  const spans = navToggle.querySelectorAll('span');
+  spans[0].style.transform = 'none';
+  spans[1].style.opacity = '1';
+  spans[2].style.transform = 'none';
+}
+
+// ========== HERO CAROUSEL ==========
+const heroSlides = document.querySelectorAll('.hero-slide');
+const heroDots = document.querySelectorAll('.hero-dot');
+let currentSlide = 0;
+let slideInterval;
+
+function goToSlide(index) {
+  heroSlides.forEach(s => s.classList.remove('active'));
+  heroDots.forEach(d => d.classList.remove('active'));
+  heroSlides[index].classList.add('active');
+  heroDots[index].classList.add('active');
+  currentSlide = index;
+}
+
+function nextSlide() {
+  goToSlide((currentSlide + 1) % heroSlides.length);
+}
+
+heroDots.forEach(dot => {
+  dot.addEventListener('click', () => goToSlide(parseInt(dot.dataset.index)));
+});
+
+// Start auto-rotation
+slideInterval = setInterval(nextSlide, 6000);
+
+// Pause on hover
+const heroSection = document.querySelector('.hero');
+heroSection.addEventListener('mouseenter', () => clearInterval(slideInterval));
+heroSection.addEventListener('mouseleave', () => {
+  slideInterval = setInterval(nextSlide, 6000);
+});
+
+// ========== SHOWCASE CAROUSEL ==========
+const showcaseSlides = document.querySelectorAll('.showcase-slide');
+const showcaseDots = document.querySelectorAll('.showcase-dot');
+let currentShowcase = 0;
+let showcaseInterval;
+
+function goToShowcase(index) {
+  showcaseSlides.forEach(s => s.classList.remove('active'));
+  showcaseDots.forEach(d => d.classList.remove('active'));
+  showcaseSlides[index].classList.add('active');
+  showcaseDots[index].classList.add('active');
+  currentShowcase = index;
+}
+
+function nextShowcase() {
+  goToShowcase((currentShowcase + 1) % showcaseSlides.length);
+}
+
+showcaseDots.forEach(dot => {
+  dot.addEventListener('click', () => goToShowcase(parseInt(dot.dataset.index)));
+});
+
+showcaseInterval = setInterval(nextShowcase, 5000);
+
+const showcaseSection = document.querySelector('.showcase-image');
+showcaseSection.addEventListener('mouseenter', () => clearInterval(showcaseInterval));
+showcaseSection.addEventListener('mouseleave', () => {
+  showcaseInterval = setInterval(nextShowcase, 5000);
+});
+
+// ========== HERO PARTICLES ==========
+const particlesContainer = document.getElementById('particles');
+for (let i = 0; i < 40; i++) {
+  const particle = document.createElement('div');
+  particle.classList.add('particle');
+  particle.style.left = Math.random() * 100 + '%';
+  particle.style.animationDelay = Math.random() * 8 + 's';
+  particle.style.animationDuration = (6 + Math.random() * 10) + 's';
+  particlesContainer.appendChild(particle);
+}
+
+// ========== REVEAL ON SCROLL ==========
+const revealElements = document.querySelectorAll('.reveal');
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
+
+revealElements.forEach(el => revealObserver.observe(el));
+
+// ========== CAR INVENTORY DATA ==========
+const cars = [
+  {
+    id: 1,
+    brand: 'Rolls-Royce',
+    name: 'Phantom Extended',
+    category: 'sedan',
+    year: '2024',
+    mileage: '120 km',
+    engine: 'V12 6.75L',
+    price: '¥ 1,280,000',
+    color: 'Midnight Sapphire',
+    badge: '准新车'
+  },
+  {
+    id: 2,
+    brand: 'Bentley',
+    name: 'Continental GT Speed',
+    category: 'sport',
+    year: '2024',
+    mileage: '2,100 km',
+    engine: 'W12 6.0L',
+    price: '¥ 868,000',
+    color: 'Silver Storm',
+    badge: '限量版'
+  },
+  {
+    id: 3,
+    brand: 'Ferrari',
+    name: 'SF90 Stradale',
+    category: 'sport',
+    year: '2023',
+    mileage: '860 km',
+    engine: 'V8 Hybrid 4.0L',
+    price: '¥ 1,150,000',
+    color: 'Rosso Corsa',
+    badge: '稀有色'
+  },
+  {
+    id: 4,
+    brand: 'Lamborghini',
+    name: 'Revuelto',
+    category: 'sport',
+    year: '2024',
+    mileage: '350 km',
+    engine: 'V12 Hybrid 6.5L',
+    price: '¥ 1,420,000',
+    color: 'Verde Mantis',
+    badge: '热门'
+  },
+  {
+    id: 5,
+    brand: 'Maybach',
+    name: 'S 680 4MATIC',
+    category: 'sedan',
+    year: '2024',
+    mileage: '500 km',
+    engine: 'V12 6.0L',
+    price: '¥ 780,000',
+    color: 'Obsidian Black',
+    badge: '臻选'
+  },
+  {
+    id: 6,
+    brand: 'Porsche',
+    name: '911 GT3 RS',
+    category: 'sport',
+    year: '2024',
+    mileage: '180 km',
+    engine: 'Flat-6 4.0L',
+    price: '¥ 580,000',
+    color: 'Arctic Grey',
+    badge: '赛道版'
+  },
+  {
+    id: 7,
+    brand: 'Aston Martin',
+    name: 'DB12',
+    category: 'sport',
+    year: '2024',
+    mileage: '1,500 km',
+    engine: 'V8 4.0L',
+    price: '¥ 620,000',
+    color: 'Ionic Blue',
+    badge: '新款'
+  },
+  {
+    id: 8,
+    brand: 'Rolls-Royce',
+    name: 'Cullinan Black Badge',
+    category: 'suv',
+    year: '2024',
+    mileage: '3,200 km',
+    engine: 'V12 6.75L',
+    price: '¥ 1,080,000',
+    color: 'Black Diamond',
+    badge: 'Black Badge'
+  },
+  {
+    id: 9,
+    brand: 'McLaren',
+    name: '750S Spider',
+    category: 'sport',
+    year: '2024',
+    mileage: '620 km',
+    engine: 'V8 Twin-Turbo 4.0L',
+    price: '¥ 960,000',
+    color: 'Papaya Orange',
+    badge: '敞篷'
+  },
+  {
+    id: 10,
+    brand: 'Bugatti',
+    name: 'Chiron Super Sport',
+    category: 'hyper',
+    year: '2023',
+    mileage: '200 km',
+    engine: 'W16 8.0L',
+    price: '¥ 5,800,000',
+    color: 'French Racing Blue',
+    badge: 'Hyper'
+  },
+  {
+    id: 11,
+    brand: 'Bentley',
+    name: 'Bentayga EWB Azure',
+    category: 'suv',
+    year: '2024',
+    mileage: '1,800 km',
+    engine: 'V8 4.0L',
+    price: '¥ 720,000',
+    color: 'Rose Gold',
+    badge: '长轴版'
+  },
+  {
+    id: 12,
+    brand: 'Ferrari',
+    name: 'Purosangue',
+    category: 'suv',
+    year: '2024',
+    mileage: '950 km',
+    engine: 'V12 6.5L',
+    price: '¥ 1,180,000',
+    color: 'Grigio Titanio',
+    badge: '稀缺'
+  }
+];
+
+// ========== RENDER CARS ==========
+const carGrid = document.getElementById('carGrid');
+
+function renderCars(filter = 'all') {
+  const filtered = filter === 'all' ? cars : cars.filter(c => c.category === filter);
+
+  carGrid.innerHTML = filtered.map(car => `
+    <div class="car-card reveal">
+      <div class="car-card-image">
+        <div class="img-placeholder" style="background-image: url('${getCarImage(car.brand, car.name)}?w=600&q=80'); background-size: cover; background-position: center;">
+        </div>
+        <span class="car-card-badge">${car.badge}</span>
+      </div>
+      <div class="car-card-body">
+        <p class="car-card-brand">${car.brand}</p>
+        <h3 class="car-card-name">${car.name}</h3>
+        <div class="car-card-specs">
+          <span class="car-spec"><span class="car-spec-icon">📅</span> ${car.year}</span>
+          <span class="car-spec"><span class="car-spec-icon">🛞</span> ${car.mileage}</span>
+          <span class="car-spec"><span class="car-spec-icon">⚙️</span> ${car.engine}</span>
+        </div>
+        <div class="car-card-footer">
+          <span class="car-price">${car.price} <small>CNY</small></span>
+          <a href="#contact" class="btn btn-ghost">咨询详情</a>
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  // Re-observe new reveal elements
+  document.querySelectorAll('.car-card.reveal').forEach(el => revealObserver.observe(el));
+}
+
+function getCarImage(brand, model) {
+  const images = {
+    'Rolls-Royce_Phantom Extended': 'https://images.unsplash.com/photo-1541239370886-851049f91487',
+    'Bentley_Continental GT Speed': 'https://images.unsplash.com/photo-1471289549423-04adaecfa1f1',
+    'Ferrari_SF90 Stradale': 'https://images.unsplash.com/photo-1583121274602-3e2820c69888',
+    'Lamborghini_Revuelto': 'https://images.unsplash.com/photo-1511919884226-fd3cad34687c',
+    'Maybach_S 680 4MATIC': 'https://images.unsplash.com/photo-1618840484703-dc9dfcea1025',
+    'Porsche_911 GT3 RS': 'https://images.unsplash.com/photo-1580274455191-1c62238fa333',
+    'Aston Martin_DB12': 'https://images.unsplash.com/photo-1642421694655-fb43c00a957d',
+    'Rolls-Royce_Cullinan Black Badge': 'https://images.unsplash.com/photo-1599912027611-484b9fc447af',
+    'McLaren_750S Spider': 'https://images.unsplash.com/photo-1508974576580-36a2f92ad3bc',
+    'Bugatti_Chiron Super Sport': 'https://images.unsplash.com/photo-1544636331-e26879cd4d9b',
+    'Bentley_Bentayga EWB Azure': 'https://images.unsplash.com/photo-1604946881982-a3321fcf07f0',
+    'Ferrari_Purosangue': 'https://images.unsplash.com/photo-1503736334956-4c8f8e92946d'
+  };
+  return images[brand + '_' + model] || 'https://images.unsplash.com/photo-1485291571150-772bcfc10da5';
+}
+
+// ========== FILTER TABS ==========
+const filterTabs = document.querySelectorAll('.filter-tab');
+filterTabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    filterTabs.forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    renderCars(tab.dataset.filter);
+  });
+});
+
+// Initial render
+renderCars();
+
+// ========== CONTACT FORM ==========
+// Toggle .has-value on selects so label floats correctly
+document.querySelectorAll('.form-group select').forEach(sel => {
+  sel.addEventListener('change', function() {
+    if (this.value) {
+      this.classList.add('has-value');
+    } else {
+      this.classList.remove('has-value');
+    }
+  });
+  // Init in case of browser autofill
+  if (sel.value) sel.classList.add('has-value');
+});
+
+// Set default appointment time to now (local time)
+function getLocalDatetimeString() {
+  const now = new Date();
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+}
+
+(function() {
+  const formatted = getLocalDatetimeString();
+  const appointmentInput = document.getElementById('appointment');
+  appointmentInput.value = formatted;
+  appointmentInput.setAttribute('min', formatted);
+})();
+
+function handleSubmit(e) {
+  e.preventDefault();
+  const btn = e.target.querySelector('button');
+  const originalText = btn.textContent;
+  btn.textContent = '✓ 申请已提交';
+  btn.style.background = '#4CAF50';
+  setTimeout(() => {
+    btn.textContent = originalText;
+    btn.style.background = '';
+    e.target.reset();
+    // Remove .has-value from selects after reset
+    e.target.querySelectorAll('select.has-value').forEach(s => s.classList.remove('has-value'));
+    // Reset appointment time after form reset
+    document.getElementById('appointment').value = getLocalDatetimeString();
+  }, 3000);
+}
+
+// ========== SMOOTH NAV LINKS (fallback for older browsers) ==========
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', function(e) {
+    const target = document.querySelector(this.getAttribute('href'));
+    if (target) {
+      e.preventDefault();
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+});
+</script>
+
+</body>
+</html>
